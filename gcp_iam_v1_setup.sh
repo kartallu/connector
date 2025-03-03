@@ -82,7 +82,7 @@ if [ "$interactive" == "false" ]; then
     echo "Service account (application) name: $sa_name"
     # By default, assign the custom role to all projects.
     project_ids="all"
-    role_name="${PREFIX}role_${timestamp}"
+    role_name="${PREFIX}role-${timestamp}"
     echo "Custom role name: $role_name"
     # If ORG_ID is set, then an organization-level custom role is created.
     if [ -z "$ORG_ID" ]; then
