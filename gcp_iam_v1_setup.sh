@@ -121,6 +121,7 @@ create_new_service_account() {
     # GCP auto-generates the service account email.
     sa_email="${sa_name}@${DEFAULT_PROJECT}.iam.gserviceaccount.com"
     echo "Service account created: $sa_email"
+    sleep 5
     create_key_for_service_account "$sa_email"
 }
 
