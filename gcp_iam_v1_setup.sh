@@ -167,6 +167,7 @@ assign_role_to_service_account() {
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$sa_email" \
               --role="$role_ref"
+              --condition='expression="true",title="AlwaysTrue",description="Always true condition"'
          if [ $? -ne 0 ]; then
              echo "Failed to assign role in project $proj."
              cleanup=true
