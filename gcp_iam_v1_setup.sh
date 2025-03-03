@@ -19,7 +19,11 @@
 #     e.g.: export ORG_ID="1234567890"
 #
 
+# Use a safe prefix for service account names (allowed characters include hyphen)
 PREFIX="ciscocsw-"
+# Use a safe prefix for custom roles (allowed characters: letters, digits, underscores, and periods)
+ROLE_PREFIX="ciscocsw_"
+
 new_service_account=false
 cleanup=false
 mode="iam"
@@ -82,8 +86,8 @@ if [ "$interactive" == "false" ]; then
     echo "Service account (application) name: $sa_name"
     # By default, assign the custom role to the default project.
     project_ids="$DEFAULT_PROJECT"
-    # Use underscore (not dash) for custom role ID to meet the pattern.
-    role_name="${PREFIX}role_${timestamp}"
+    # Build a role name using the safe role prefix.
+    role_name="${ROLE_PREFIX}role_${timestamp}"
     echo "Custom role name: $role_name"
     # If ORG_ID is set, then an organization-level custom role is created.
     if [ -z "$ORG_ID" ]; then
@@ -205,13 +209,13 @@ cleanup_resources() {
               --role="$role_ref" --condition=None --quiet
     done
 
-    # Delete the custom role using its full resource name.
+    # Delete the custom role using the proper deletion syntax.
     if [ -n "$org_id" ]; then
          echo "Deleting custom role $role_name from organization $org_id..."
-         gcloud iam roles delete "organizations/$org_id/roles/$role_name" --quiet
+         gcloud iam roles delete "$role_name" --organization="$org_id" --quiet
     else
          echo "Deleting custom role $role_name from project $DEFAULT_PROJECT..."
-         gcloud iam roles delete "projects/$DEFAULT_PROJECT/roles/$role_name" --quiet
+         gcloud iam roles delete "$role_name" --project="$DEFAULT_PROJECT" --quiet
     fi
 }
 
@@ -300,7 +304,7 @@ if [ "$interactive" == "true" ]; then
          cleanup=true
          exit 1
     fi
-    role_name="${PREFIX}${input_role_name}"
+    role_name="${ROLE_PREFIX}${input_role_name}"
 fi
 
 # Create a custom role definition file.
