@@ -19,7 +19,7 @@
 #     e.g.: export ORG_ID="1234567890"
 #
 
-PREFIX="ciscocsw_"
+PREFIX="ciscocsw-"
 new_service_account=false
 cleanup=false
 mode="iam"
@@ -78,7 +78,7 @@ fi
 if [ "$interactive" == "false" ]; then
     app_choice="new"
     # In GCP the "application" is a service account.
-    sa_name="${PREFIX}app_${timestamp}"
+    sa_name="${PREFIX}app-${timestamp}"
     echo "Service account (application) name: $sa_name"
     # By default, assign the custom role to all projects.
     project_ids="all"
