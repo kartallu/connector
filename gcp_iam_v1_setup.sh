@@ -80,8 +80,9 @@ if [ "$interactive" == "false" ]; then
     # In GCP the "application" is a service account.
     sa_name="${PREFIX}app-${timestamp}"
     echo "Service account (application) name: $sa_name"
-    # By default, assign the custom role to all projects.
+    # By default, assign the custom role to the default project.
     project_ids="$DEFAULT_PROJECT"
+    # Use underscore (not dash) for custom role ID to meet the pattern.
     role_name="${PREFIX}role_${timestamp}"
     echo "Custom role name: $role_name"
     # If ORG_ID is set, then an organization-level custom role is created.
@@ -106,6 +107,8 @@ create_new_service_account() {
             echo "Error: Service account name cannot be empty."
             exit 1
         fi
+        # Replace underscores with hyphens to comply with naming rules.
+        input_sa_name=$(echo "$input_sa_name" | tr '_' '-')
         sa_name="${PREFIX}${input_sa_name}"
     fi
 
@@ -121,7 +124,8 @@ create_new_service_account() {
     # GCP auto-generates the service account email.
     sa_email="${sa_name}@${DEFAULT_PROJECT}.iam.gserviceaccount.com"
     echo "Service account created: $sa_email"
-    sleep 5
+    # Pause to allow the service account to propagate.
+    sleep 10
     create_key_for_service_account "$sa_email"
 }
 
@@ -166,7 +170,7 @@ assign_role_to_service_account() {
          echo "Assigning role $role_ref to service account $sa_email in project $proj..."
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$sa_email" \
-              --role="$role_ref"
+              --role="$role_ref" \
               --condition='expression="true",title="AlwaysTrue",description="Always true condition"'
          if [ $? -ne 0 ]; then
              echo "Failed to assign role in project $proj."
@@ -201,13 +205,13 @@ cleanup_resources() {
               --role="$role_ref" --condition=None --quiet
     done
 
-    # Delete the custom role.
+    # Delete the custom role using its full resource name.
     if [ -n "$org_id" ]; then
          echo "Deleting custom role $role_name from organization $org_id..."
-         gcloud iam roles delete "$role_name" --organization="$org_id" --quiet
+         gcloud iam roles delete "organizations/$org_id/roles/$role_name" --quiet
     else
          echo "Deleting custom role $role_name from project $DEFAULT_PROJECT..."
-         gcloud iam roles delete "$role_name" --project "$DEFAULT_PROJECT" --quiet
+         gcloud iam roles delete "projects/$DEFAULT_PROJECT/roles/$role_name" --quiet
     fi
 }
 
