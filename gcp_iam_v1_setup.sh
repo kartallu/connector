@@ -172,10 +172,7 @@ assign_role_to_service_account() {
     IFS=',' read -r -a projects_array <<< "$projects_list"
     for proj in "${projects_array[@]}"; do
          echo "Assigning role $role_ref to service account $sa_email in project $proj..."
-         gcloud projects add-iam-policy-binding "$proj" \                   # This is the complete IAM policy for the project. 
-              --member="serviceAccount:$sa_email" \
-              --role="$role_ref" \
-              --condition='expression=true,title="AlwaysTrue",description="Always true condition"'   # GCP requires new binding to include a condition if project's IAM policy already has any conditional bindings. Adding dummy condition that evaluates to true satisfies GCP's requirement. 
+         gcloud projects add-iam-policy-binding "$proj" --member="serviceAccount:$sa_email" --role="$role_ref" --condition='expression=true,title="AlwaysTrue",description="Always true condition"'
          if [ $? -ne 0 ]; then
              echo "Failed to assign role in project $proj."
              cleanup=true
