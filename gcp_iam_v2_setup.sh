@@ -306,4 +306,6 @@ assign_role_to_service_account "$project_ids" "$sa_email" "$role_ref"
 # Output Credentials for Onboarding
 #---------------------------------------------------
 echo "-------------------------------------------------------"
-echo "
+echo ""
+
+cleanup=false
