@@ -320,6 +320,7 @@ includedPermissions:
   - storage.buckets.get
   - storage.objects.get
   - resourcemanager.projects.getIamPolicy
+  - iam.roles.get
 EOF
 
 echo ""
