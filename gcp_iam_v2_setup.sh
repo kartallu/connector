@@ -4,7 +4,7 @@
 #
 # This script creates (or uses an existing) service account (the “application”),
 # generates a key for it, creates a custom role with an extended permission set,
-# assigns that role (with a dummy condition) to the service account in one or more projects,
+# assigns that role (with a dummy condition and an unconditional binding) to the service account in one or more projects,
 # and then prints the credentials required for onboarding your connector.
 #
 # Modes:
@@ -169,17 +169,27 @@ assign_role_to_service_account() {
 
     IFS=',' read -r -a proj_array <<< "$proj_list"
     for proj in "${proj_array[@]}"; do
-         echo "Assigning role $role_ref to $email in project $proj..."
+         echo "Assigning conditional role binding $role_ref to $email in project $proj..."
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$email" \
               --role="$role_ref" \
               --condition='expression=true,title="AlwaysTrue",description="Always true condition"'
          if [ $? -ne 0 ]; then
-             echo "Failed to assign role in project $proj."
+             echo "Failed to assign conditional role binding in project $proj."
              cleanup=true
              exit 1
          fi
-         echo "Role assigned in project $proj."
+         echo "Conditional role binding assigned in project $proj."
+         echo "Assigning unconditional role binding $role_ref to $email in project $proj..."
+         gcloud projects add-iam-policy-binding "$proj" \
+              --member="serviceAccount:$email" \
+              --role="$role_ref"
+         if [ $? -ne 0 ]; then
+             echo "Failed to assign unconditional role binding in project $proj."
+             cleanup=true
+             exit 1
+         fi
+         echo "Unconditional role binding assigned in project $proj."
     done
 }
 
@@ -306,6 +316,18 @@ assign_role_to_service_account "$project_ids" "$sa_email" "$role_ref"
 # Output Credentials for Onboarding
 #---------------------------------------------------
 echo "-------------------------------------------------------"
-echo ""
+echo "Credentials required to onboard the GCP Connector:"
+echo "Project ID: $DEFAULT_PROJECT"
+echo "Service Account Email: $sa_email"
+echo "Key File: key_${timestamp}.json"
+echo "Role Reference: $role_ref"
+echo "-------------------------------------------------------"
+echo "Information required to initiate cleanup (Save these details!!):"
+echo "  Service Account Email: $sa_email"
+echo "  Custom Role Name: $role_name"
+echo "  Project ID: $DEFAULT_PROJECT"
+echo "-------------------------------------------------------"
 
+# Reset cleanup flag upon success.
 cleanup=false
+
