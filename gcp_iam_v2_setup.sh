@@ -4,8 +4,8 @@
 #
 # This script creates (or uses an existing) service account (the “application”),
 # generates a key for it, creates a custom role with an extended permission set,
-# assigns that role (with a dummy condition and an unconditional binding) to the service account in one or more projects,
-# and then prints the credentials required for onboarding your connector.
+# assigns that role (both conditionally and unconditionally) to the service account
+# in one or more projects, and then prints the credentials required for onboarding your connector.
 #
 # Modes:
 #   iam     : Setup mode (default)
@@ -169,7 +169,7 @@ assign_role_to_service_account() {
 
     IFS=',' read -r -a proj_array <<< "$proj_list"
     for proj in "${proj_array[@]}"; do
-         echo "Assigning conditional role binding $role_ref to $email in project $proj..."
+         echo "Assigning **conditional** role binding $role_ref to $email in project $proj..."
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$email" \
               --role="$role_ref" \
@@ -180,7 +180,8 @@ assign_role_to_service_account() {
              exit 1
          fi
          echo "Conditional role binding assigned in project $proj."
-         echo "Assigning unconditional role binding $role_ref to $email in project $proj..."
+
+         echo "Assigning **unconditional** role binding $role_ref to $email in project $proj..."
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$email" \
               --role="$role_ref"
@@ -330,4 +331,3 @@ echo "-------------------------------------------------------"
 
 # Reset cleanup flag upon success.
 cleanup=false
-
