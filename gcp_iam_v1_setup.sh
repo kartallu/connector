@@ -317,6 +317,9 @@ includedPermissions:
   - compute.subnetworks.get
   - compute.subnetworks.list
   - compute.firewalls.list
+  - compute.firewalls.get
+  - compute.addresses.list
+  - compute.addresses.get
   - storage.buckets.get
   - storage.objects.get
   - resourcemanager.projects.getIamPolicy
