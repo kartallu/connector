@@ -319,7 +319,7 @@ includedPermissions:
   - compute.firewalls.list
   - storage.buckets.get
   - storage.objects.get
-  - resourcemanager.projects.get
+  - resourcemanager.projects.getIAMPolicy
 EOF
 
 echo ""
