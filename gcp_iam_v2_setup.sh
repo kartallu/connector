@@ -172,7 +172,7 @@ assign_role_to_service_account() {
          echo "Assigning **conditional** role binding $role_ref to $email in project $proj..."
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$email" \
-              --role="$role_ref" \
+              --role="roles/iam.roleViewer" \
               --condition='expression=true,title="AlwaysTrue",description="Always true condition"'
          if [ $? -ne 0 ]; then
              echo "Failed to assign conditional role binding in project $proj."
