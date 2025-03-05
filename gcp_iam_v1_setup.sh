@@ -321,6 +321,7 @@ includedPermissions:
   - storage.objects.get
   - resourcemanager.projects.getIamPolicy
   - iam.roles.get
+  - iam.roles.list
 EOF
 
 echo ""
