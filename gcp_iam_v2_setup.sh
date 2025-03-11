@@ -279,11 +279,8 @@ cat > /tmp/role.json <<EOF
     "container.clusters.list",
     "storage.buckets.get",
     "storage.objects.get",
-    "resourcemanager.projects.get",
     "resourcemanager.projects.getIamPolicy",
-    "iam.roles.get",
-    "iam.roles.list",
-    "iam.serviceAccounts.get"
+    "iam.roles.get"
   ]
 }
 EOF
