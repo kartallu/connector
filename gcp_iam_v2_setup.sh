@@ -181,12 +181,12 @@ assign_role_to_service_account() {
          fi
          echo "Conditional role binding assigned in project $proj."
 
-         if [ $? -ne 0 ]; then
-             echo "Failed to assign unconditional role binding in project $proj."
-             cleanup=true
-             exit 1
-         fi
-         echo "Unconditional role binding assigned in project $proj."
+        #  if [ $? -ne 0 ]; then
+        #      echo "Failed to assign unconditional role binding in project $proj."
+        #      cleanup=true
+        #      exit 1
+        #  fi
+        #  echo "Unconditional role binding assigned in project $proj."
     done
 }
 
