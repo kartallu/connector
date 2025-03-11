@@ -276,6 +276,7 @@ cat > /tmp/role.json <<EOF
     "compute.subnetworks.get",
     "compute.subnetworks.list",
     "compute.firewalls.list",
+    "container.clusters.list",
     "storage.buckets.get",
     "storage.objects.get",
     "resourcemanager.projects.get",
