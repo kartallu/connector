@@ -157,6 +157,22 @@ create_key_for_service_account() {
          exit 1
     fi
     echo "Key created and saved to $key_file"
+
+    # Authorize the service account using the newly generated key.
+    authorize_service_account "$email" "$key_file"
+}
+
+authorize_service_account() {
+    local email=$1
+    local key_file_local=$2
+    echo "Authorizing service account $email using key file $key_file_local..."
+    gcloud auth activate-service-account "$email" --key-file="$key_file_local" --project "$DEFAULT_PROJECT"
+    if [ $? -ne 0 ]; then
+         echo "Failed to authorize service account."
+         cleanup=true
+         exit 1
+    fi
+    echo "Service account $email authorized successfully."
 }
 
 #---------------------------------------------------
@@ -195,7 +211,7 @@ cleanup_resources() {
          gcloud iam roles delete "$role_name" --organization="$org_id" --quiet
     else
          echo "Deleting custom role $role_name from project $DEFAULT_PROJECT..."
-         gcloud iam roles delete "$role_name" --project="$DEFAULT_PROJECT" --quiet
+         gcloud iam roles delete "$role_name" --project "$DEFAULT_PROJECT" --quiet
     fi
 }
 
@@ -306,13 +322,13 @@ fi
 assign_role_to_service_account "$project_ids" "$sa_email" "$role_ref"
 
 #---------------------------------------------------
-# Output Credentials for Onboarding
+# Output Credentials for Onboarding and Download Key File
 #---------------------------------------------------
 echo "-------------------------------------------------------"
 echo "Credentials required to onboard the GCP Connector:"
 echo "Project ID: $DEFAULT_PROJECT"
 echo "Service Account Email: $sa_email"
-echo "Key File: key_${timestamp}.json"
+echo "Key File: $key_file"
 echo "Role Reference: $role_ref"
 echo "-------------------------------------------------------"
 echo "Information required to initiate cleanup (Save these details!!):"
@@ -320,6 +336,9 @@ echo "  Service Account Email: $sa_email"
 echo "  Custom Role Name: $role_name"
 echo "  Project ID: $DEFAULT_PROJECT"
 echo "-------------------------------------------------------"
+
+echo "Initiating download of key file ($key_file) to your local machine..."
+cloudshell download "$key_file"
 
 # Reset cleanup flag upon success.
 cleanup=false
