@@ -288,7 +288,10 @@ cat > /tmp/role.json <<EOF
     "storage.objects.get",
     "resourcemanager.projects.getIamPolicy",
     "iam.roles.get",
-    "iam.roles.list"
+    "iam.roles.list",
+    "iam.serviceAccounts.get",
+    "iam.serviceAccounts.list",
+    "iam.serviceAccounts.create",
   ]
 }
 EOF
