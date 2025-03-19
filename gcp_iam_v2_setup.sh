@@ -144,6 +144,7 @@ use_existing_service_account() {
     create_key_for_service_account "$sa_email"
 }
 
+# Create the key file for the service account, but do not activate it immediately.
 create_key_for_service_account() {
     local email=$1
     echo "Creating key for service account $email..."
@@ -157,23 +158,7 @@ create_key_for_service_account() {
          exit 1
     fi
     echo "Key created and saved to $key_file"
-
-    # Authorize the service account using the newly generated key.
-    authorize_service_account "$key_file"
 }
-
-authorize_service_account() {
-    local key_file_local=$1
-    echo "Authorizing service account using key file $key_file_local..."
-    gcloud auth activate-service-account --key-file="$key_file_local"
-    if [ $? -ne 0 ]; then
-         echo "Failed to authorize service account."
-         cleanup=true
-         exit 1
-    fi
-    echo "Service account authorized successfully."
-}
-
 
 #---------------------------------------------------
 # Function to assign the custom role to the service account.
@@ -194,7 +179,7 @@ assign_role_to_service_account() {
              cleanup=true
              exit 1
          fi
-         echo "Conditional role binding assigned in project $proj."
+         echo "Role binding assigned in project $proj."
     done
 }
 
@@ -291,8 +276,7 @@ cat > /tmp/role.json <<EOF
     "storage.objects.get",
     "resourcemanager.projects.getIamPolicy",
     "iam.roles.get",
-    "iam.roles.list",
-    "iam.roles.delete"
+    "iam.roles.list"
   ]
 }
 EOF
@@ -340,6 +324,25 @@ echo "-------------------------------------------------------"
 
 echo "Initiating download of key file ($key_file) to your local machine..."
 cloudshell download "$key_file"
+
+#---------------------------------------------------
+# Optional: Activate the service account for connector use.
+#---------------------------------------------------
+echo "Note: The IAM resources were created using your user account."
+echo "Activating the service account now will switch your active credentials."
+echo "Do you want to activate the service account for connector use? (yes/no)"
+read activate_choice
+if [ "$activate_choice" == "yes" ]; then
+    echo "Activating service account using key file $key_file..."
+    gcloud auth activate-service-account --key-file="$key_file"
+    if [ $? -ne 0 ]; then
+         echo "Failed to activate service account."
+         exit 1
+    fi
+    echo "Service account activated."
+else
+    echo "Service account activation skipped."
+fi
 
 # Reset cleanup flag upon success.
 cleanup=false
