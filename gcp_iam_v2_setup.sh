@@ -289,6 +289,7 @@ cat > /tmp/role.json <<EOF
     "resourcemanager.projects.getIamPolicy",
     "iam.roles.get",
     "iam.roles.list",
+    "iam.roles.delete",
     "iam.serviceAccounts.get",
     "iam.serviceAccounts.list",
     "iam.serviceAccounts.create",
