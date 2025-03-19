@@ -169,22 +169,16 @@ assign_role_to_service_account() {
 
     IFS=',' read -r -a proj_array <<< "$proj_list"
     for proj in "${proj_array[@]}"; do
-         echo "Assigning **conditional** role binding $role_ref to $email in project $proj..."
+         echo "Assigning role binding $role_ref to $email in project $proj..."
          gcloud projects add-iam-policy-binding "$proj" \
               --member="serviceAccount:$email" \
               --role="$role_ref" 
          if [ $? -ne 0 ]; then
-             echo "Failed to assign conditional role binding in project $proj."
+             echo "Failed to assign role binding in project $proj."
              cleanup=true
              exit 1
          fi
          echo "Conditional role binding assigned in project $proj."
-        #  if [ $? -ne 0 ]; then
-        #      echo "Failed to assign unconditional role binding in project $proj."
-        #      cleanup=true
-        #      exit 1
-        #  fi
-        #  echo "Unconditional role binding assigned in project $proj."
     done
 }
 
@@ -269,8 +263,10 @@ cat > /tmp/role.json <<EOF
   "includedPermissions": [
     "compute.instances.get",
     "compute.instances.list",
+    "compute.instances.getEffectiveFirewalls",
     "compute.networks.get",
     "compute.networks.list",
+    "compute.networks.getEffectiveFirewalls",
     "compute.subnetworks.get",
     "compute.subnetworks.list",
     "compute.firewalls.list",
@@ -278,7 +274,8 @@ cat > /tmp/role.json <<EOF
     "storage.buckets.get",
     "storage.objects.get",
     "resourcemanager.projects.getIamPolicy",
-    "iam.roles.get"
+    "iam.roles.get",
+    "iam.roles.list"
   ]
 }
 EOF
