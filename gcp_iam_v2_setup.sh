@@ -159,21 +159,21 @@ create_key_for_service_account() {
     echo "Key created and saved to $key_file"
 
     # Authorize the service account using the newly generated key.
-    authorize_service_account "$email" "$key_file"
+    authorize_service_account "$key_file"
 }
 
 authorize_service_account() {
-    local email=$1
-    local key_file_local=$2
-    echo "Authorizing service account $email using key file $key_file_local..."
-    gcloud auth activate-service-account "$email" --key-file="$key_file_local" --project "$DEFAULT_PROJECT"
+    local key_file_local=$1
+    echo "Authorizing service account using key file $key_file_local..."
+    gcloud auth activate-service-account --key-file="$key_file_local"
     if [ $? -ne 0 ]; then
          echo "Failed to authorize service account."
          cleanup=true
          exit 1
     fi
-    echo "Service account $email authorized successfully."
+    echo "Service account authorized successfully."
 }
+
 
 #---------------------------------------------------
 # Function to assign the custom role to the service account.
@@ -291,7 +291,8 @@ cat > /tmp/role.json <<EOF
     "storage.objects.get",
     "resourcemanager.projects.getIamPolicy",
     "iam.roles.get",
-    "iam.roles.list"
+    "iam.roles.list",
+    "iam.roles.delete"
   ]
 }
 EOF
