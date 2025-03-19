@@ -71,6 +71,18 @@ if [ "$interactive" != "true" ] && [ "$interactive" != "false" ]; then
     usage
 fi
 
+active_account=$(gcloud config get-value account 2>/dev/null)
+if [ -z "$active_account" ]; then
+    echo "No active gcloud account detected. Initiating login..."
+    gcloud auth login
+    # Re-check active account after login
+    active_account=$(gcloud config get-value account 2>/dev/null)
+    if [ -z "$active_account" ]; then
+         echo "Login failed. Exiting."
+         exit 1
+    fi
+fi
+
 # Get the default project from gcloud configuration.
 DEFAULT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 if [ -z "$DEFAULT_PROJECT" ]; then
