@@ -216,6 +216,15 @@ cleanup_resources() {
 # Main logic based on mode.
 #---------------------------------------------------
 if [ "$mode" == "cleanup" ]; then
+    # Check that the active account is not a service account
+    active_account=$(gcloud config get-value account 2>/dev/null)
+    if [[ "$active_account" == "ciscocsw-app-"* ]]; then
+        echo "Error: Cleanup mode must be run with a user account with sufficient privileges."
+        echo "Please switch the active account using:"
+        echo "  gcloud config set account YOUR_USER_ACCOUNT_EMAIL"
+        exit 1
+    fi
+
     echo "Cleanup mode selected."
     echo "Enter service account email to delete:"
     read sa_email
@@ -224,6 +233,7 @@ if [ "$mode" == "cleanup" ]; then
     cleanup_resources
     echo "Cleanup finished."
     exit 0
+fi
 elif [ "$mode" == "iam" ]; then
     echo "Setting up required IAM resources..."
 else
@@ -274,15 +284,25 @@ cat > /tmp/role.json <<EOF
   "description": "Cisco Secure Workload (CSW) generated custom role with permissions for compute, networking, container clusters, and storage.",
   "stage": "GA",
   "includedPermissions": [
+    "compute.firewallPolicies.get",
+    "compute.firewallPolicies.list",
+    "compute.firewallPolicies.use",
+    "compute.firewallPolicies.update",
+    "compute.firewallPolicies.create",
+    "compute.globalOperations.get",
     "compute.instances.get",
     "compute.instances.list",
     "compute.instances.getEffectiveFirewalls",
     "compute.networks.get",
     "compute.networks.list",
     "compute.networks.getEffectiveFirewalls",
+    "compute.networks.setFirewallPolicy",
     "compute.subnetworks.get",
     "compute.subnetworks.list",
     "compute.firewalls.list",
+    "compute.firewalls.create",
+    "compute.firewalls.update",
+    "compute.firewalls.delete",
     "container.clusters.list",
     "storage.buckets.get",
     "storage.objects.get",
