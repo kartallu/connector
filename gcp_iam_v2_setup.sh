@@ -233,7 +233,6 @@ if [ "$mode" == "cleanup" ]; then
     cleanup_resources
     echo "Cleanup finished."
     exit 0
-fi
 elif [ "$mode" == "iam" ]; then
     echo "Setting up required IAM resources..."
 else
